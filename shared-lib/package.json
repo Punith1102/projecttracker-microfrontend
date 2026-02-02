@@ -1,0 +1,18 @@
+{
+    "name": "@mfe/shared-lib",
+    "version": "1.0.0",
+    "description": "Shared library for microfrontend architecture",
+    "main": "src/index.ts",
+    "scripts": {
+        "build": "tsc"
+    },
+    "peerDependencies": {
+        "@angular/common": "^21.0.0",
+        "@angular/core": "^21.0.0",
+        "@angular/router": "^21.0.0",
+        "rxjs": "~7.8.0"
+    },
+    "devDependencies": {
+        "typescript": "~5.9.2"
+    }
+}
