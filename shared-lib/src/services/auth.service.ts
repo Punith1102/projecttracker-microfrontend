@@ -35,10 +35,10 @@ export class AuthService {
 
         if (this.isAuthenticated()) {
             const user = this.getUser();
-            // if (user?.expiresIn) {
-            //     this.sessionTimeout = user.expiresIn;
-            // }
-            this.resetActivityTimer(false); // Don't broadcast initial reset
+            
+            
+            
+            this.resetActivityTimer(false); 
             this.startSessionTimer();
         }
     }
@@ -74,16 +74,16 @@ export class AuthService {
             tap(response => {
                 localStorage.setItem('token', response.token);
                 localStorage.setItem('user', JSON.stringify(response));
-                // if (response.expiresIn) {
-                //     this.sessionTimeout = response.expiresIn;
-                // }
+                
+                
+                
 
                 this.authChannel.postMessage({
                     type: 'LOGIN',
                     payload: { expiresIn: response.expiresIn }
                 });
 
-                this.resetActivityTimer(false); // Don't broadcast as we just sent LOGIN
+                this.resetActivityTimer(false); 
                 this.startSessionTimer();
             })
         );
@@ -99,7 +99,7 @@ export class AuthService {
             this.authChannel.postMessage({ type: 'LOGOUT' });
         }
 
-        // Use window.location.href to ensure full reload and clear any state
+        
         window.location.href = '/login';
     }
 
@@ -120,7 +120,7 @@ export class AuthService {
             const decoded = jwtDecode<JwtPayload>(token);
             const currentTime = Date.now() / 1000;
             if (decoded.exp && decoded.exp < currentTime) {
-                this.logout(false); // Don't broadcast if it's just a local check
+                this.logout(false); 
                 return false;
             }
             return true;
@@ -159,7 +159,7 @@ export class AuthService {
     }
 
     extendSession(): void {
-        // extending session is basically just activity
+        
         this.resetActivityTimer(true);
     }
 
@@ -202,9 +202,9 @@ export class AuthService {
     }
 
     private handleRemoteLogin(payload: any) {
-        // if (payload?.expiresIn) {
-        //     this.sessionTimeout = payload.expiresIn;
-        // }
+        
+        
+        
         this.resetActivityTimer(false);
         this.startSessionTimer();
     }
