@@ -1,0 +1,99 @@
+<div class="dashboard-container">
+    <div class="welcome-banner">
+        <div class="welcome-text">
+            <h1>Welcome back, {{ userName }}</h1>
+            <p class="date-text">{{ today | date:'EEEE, MMMM d, y' }}</p>
+        </div>
+        <div class="quick-stats">
+            <div class="stat-item">
+                <span class="stat-number">{{ projects.length }}</span>
+                <span class="stat-label">Projects</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">{{ myTasksCount }}</span>
+                <span class="stat-label">Tasks</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">{{ dueSoonCount }}</span>
+                <span class="stat-label">Due Soon</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="projects-column">
+            <div class="column-header">
+                <h2>{{ isAdmin ? 'All Projects' : 'Your Projects' }}</h2>
+                <a routerLink="/projects" class="view-link">View All</a>
+            </div>
+
+            <div class="projects-list" *ngIf="projects.length > 0">
+                <div class="project-item" *ngFor="let project of projects"
+                    [routerLink]="['/projects', project.projectId || project.projectID]">
+                    <div class="project-info">
+                        <span class="field-label">Project Name</span>
+                        <h3>{{ project.name }}</h3>
+                    </div>
+                    <div class="project-info">
+                        <span class="field-label">Description</span>
+                        <p>{{ project.description }}</p>
+                    </div>
+                    <div class="project-meta">
+                        <span class="badge active">Active</span>
+                        <span class="badge-tasks" *ngIf="project.tasks?.length">{{ project.tasks?.length }} Tasks</span>
+                        <span class="meta-text" *ngIf="project.dueDate">
+                            Due {{ project.dueDate | date:'MMM d' }}
+                        </span>
+                        <span class="meta-text"
+                            *ngIf="project.createdBy && (isAdmin || project.createdBy.email !== currentUserEmail)">
+                            Created by {{ project.createdBy.name }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" *ngIf="projects.length === 0">
+                <p>No projects yet</p>
+                <a routerLink="/projects" class="create-link">Create your first project</a>
+            </div>
+        </div>
+
+        <div class="tasks-column">
+            <div class="column-header">
+                <h2>My Tasks</h2>
+                <a routerLink="/my-tasks" class="view-link">View All</a>
+            </div>
+
+            <div class="tasks-list" *ngIf="recentTasks.length > 0">
+                <div class="task-item" *ngFor="let task of recentTasks">
+                    <div class="task-field">
+                        <span class="field-label">Task Name</span>
+                        <span class="field-value">{{ task.title }}</span>
+                    </div>
+                    <div class="task-field" *ngIf="task.project">
+                        <span class="field-label">Project</span>
+                        <span class="field-value">{{ task.project.name }}</span>
+                    </div>
+                    <div class="task-field">
+                        <span class="field-label">Status</span>
+                        <span class="status-text" [ngClass]="task.status.name">{{ task.status.name }}</span>
+                    </div>
+                    <div class="task-field" *ngIf="task.priority">
+                        <span class="field-label">Priority</span>
+                        <span class="priority-badge" [ngClass]="task.priority">{{ task.priority }}</span>
+                    </div>
+                    <div class="task-field" *ngIf="task.dueDate">
+                        <span class="field-label">Due Date</span>
+                        <span class="field-value">{{ task.dueDate | date:'MMM d, y' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" *ngIf="recentTasks.length === 0">
+                <p>No tasks assigned</p>
+            </div>
+        </div>
+    </div>
+</div>

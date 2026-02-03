@@ -1,0 +1,63 @@
+<div class="container">
+    <h2 class="page-title">My Assigned Tasks</h2>
+
+    <div class="tasks-grid">
+        <div class="task-card" *ngFor="let task of tasks">
+            <div class="card-content">
+                <div class="field-group">
+                    <span class="field-label">Task Name</span>
+                    <div class="task-header">
+                        <h3 class="task-title">{{ task.title }}</h3>
+                        <span class="status-badge" [ngClass]="task.status.name">{{ task.status.name }}</span>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <span class="field-label">Description</span>
+                    <p class="task-desc">{{ task.description }}</p>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="task-meta">
+                    <div class="meta-item" *ngIf="task.project">
+                        <span class="meta-icon icon-folder"></span>
+                        <span class="meta-label">Project:</span>
+                        <span class="meta-value">{{ task.project.name }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="task.dueDate">
+                        <span class="meta-icon icon-calendar"></span>
+                        <span class="meta-label">Due:</span>
+                        <span class="meta-value">{{ task.dueDate | date:'mediumDate' }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="task.createdBy">
+                        <span class="meta-icon icon-user"></span>
+                        <span class="meta-label">Assigned By:</span>
+                        <span class="meta-value">{{ task.createdBy.name }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="task.priority">
+                        <span class="meta-icon icon-flag"></span>
+                        <span class="meta-label">Priority:</span>
+                        <span class="meta-value priority-tag" [ngClass]="task.priority">{{ task.priority }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-actions">
+                <label class="action-label">Update Status</label>
+                <select [(ngModel)]="task.status.statusId" (change)="updateStatus(task)" class="status-select"
+                    [ngClass]="'status-' + task.status.name">
+                    <option [value]="1">TO_DO</option>
+                    <option [value]="2">IN_PROGRESS</option>
+                    <option [value]="3">DONE</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="empty-state" *ngIf="tasks.length === 0">
+            <div class="empty-icon">—</div>
+            <h3>All Caught Up</h3>
+            <p>No tasks assigned to you at the moment.</p>
+        </div>
+    </div>
+</div>

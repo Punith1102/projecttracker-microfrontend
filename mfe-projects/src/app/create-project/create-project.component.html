@@ -1,0 +1,29 @@
+<div class="container">
+    <h1>Create New Project</h1>
+
+    <div class="create-form-card">
+        <form [formGroup]="createProjectForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="name">Project Name <span class="required-indicator">*</span></label>
+                <input type="text" id="name" formControlName="name" placeholder="Enter project name"
+                    [class.error]="createProjectForm.get('name')?.invalid && createProjectForm.get('name')?.touched">
+                <span class="error-message"
+                    *ngIf="createProjectForm.get('name')?.invalid && createProjectForm.get('name')?.touched">
+                    Project name is required
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description <span class="required-indicator">*</span></label>
+                <textarea id="description" formControlName="description" rows="3"
+                    placeholder="Enter project description"
+                    [class.error]="createProjectForm.get('description')?.invalid && createProjectForm.get('description')?.touched"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-cancel" routerLink="/dashboard">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="createProjectForm.invalid">Create Project</button>
+            </div>
+        </form>
+    </div>
+</div>

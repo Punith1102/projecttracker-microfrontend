@@ -1,0 +1,35 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Create Account</h2>
+        <p class="subtitle">Join Project Tracker</p>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="name">Full Name <span class="required-indicator">*</span></label>
+                <input type="text" id="name" formControlName="name" placeholder="Enter your name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email <span class="required-indicator">*</span></label>
+                <input type="email" id="email" formControlName="email" placeholder="Enter your email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password <span class="required-indicator">*</span></label>
+                <input type="password" id="password" formControlName="password" placeholder="Choose a password">
+            </div>
+
+            <div class="error-alert" *ngIf="errorMessage">
+                {{ errorMessage }}
+            </div>
+
+            <button type="submit" [disabled]="registerForm.invalid || isLoading">
+                {{ isLoading ? 'Creating Account...' : 'Register' }}
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            Already have an account? <a routerLink="/login">Login</a>
+        </p>
+    </div>
+</div>

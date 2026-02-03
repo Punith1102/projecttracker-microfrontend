@@ -1,0 +1,311 @@
+<div class="container" *ngIf="project">
+    <nav class="breadcrumbs">
+        <a routerLink="/dashboard">Dashboard</a>
+        <span> / </span>
+        <a routerLink="/dashboard">Projects</a>
+        <span> / </span>
+        <span>{{ project.name }}</span>
+        <ng-container *ngIf="showCreateTaskForm">
+            <span> / </span>
+            <span>Add Task</span>
+        </ng-container>
+    </nav>
+
+    <div class="project-header">
+        <div class="header-content">
+            <div class="header-field-group">
+                <span class="header-label">Project Name</span>
+                <h1>{{ project.name }}</h1>
+            </div>
+            <div class="header-field-group">
+                <span class="header-label">Description</span>
+                <p class="description">{{ project.description }}</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-primary" (click)="toggleCreateTaskForm()">
+                {{ showCreateTaskForm ? 'Cancel' : 'Add Task' }}
+            </button>
+            <button class="btn-secondary" *ngIf="canEditProject()" (click)="openEditProjectModal()">Edit
+                Project</button>
+            <button class="btn-danger" *ngIf="canDeleteProject()" (click)="deleteProject()">Delete Project</button>
+        </div>
+    </div>
+
+    <div class="create-task-form" *ngIf="showCreateTaskForm">
+        <form [formGroup]="createTaskForm" (ngSubmit)="onSubmitTask()">
+            <div class="form-group">
+                <label for="title">Task Title <span class="required-indicator">*</span></label>
+                <input type="text" id="title" formControlName="title" placeholder="Enter task title"
+                    [class.error]="createTaskForm.get('title')?.invalid && createTaskForm.get('title')?.touched">
+                <span class="error-message"
+                    *ngIf="createTaskForm.get('title')?.invalid && createTaskForm.get('title')?.touched">
+                    Title is required
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description <span class="required-indicator">*</span></label>
+                <textarea id="description" formControlName="description" rows="3" placeholder="Enter task description"
+                    [class.error]="createTaskForm.get('description')?.invalid && createTaskForm.get('description')?.touched"></textarea>
+                <span class="error-message"
+                    *ngIf="createTaskForm.get('description')?.invalid && createTaskForm.get('description')?.touched">
+                    Description is required
+                </span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dueDate">Due Date <span class="required-indicator">*</span></label>
+                    <input type="date" id="dueDate" formControlName="dueDate" min="2024-01-01" max="2099-12-31"
+                        [class.error]="createTaskForm.get('dueDate')?.invalid && createTaskForm.get('dueDate')?.touched">
+                    <span class="error-message"
+                        *ngIf="createTaskForm.get('dueDate')?.hasError('required') && createTaskForm.get('dueDate')?.touched">
+                        Due date is required
+                    </span>
+                    <span class="error-message"
+                        *ngIf="createTaskForm.get('dueDate')?.hasError('pastDate') && createTaskForm.get('dueDate')?.touched">
+                        Due date cannot be in the past
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" formControlName="priority">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="assignedTo">Assign To</label>
+                <select id="assignedTo" formControlName="assignedTo">
+                    <option [ngValue]="null">Unassigned</option>
+                    <option *ngFor="let user of users" [ngValue]="user">{{ user.name }} ({{ user.email }})</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit" [disabled]="createTaskForm.invalid">Add Task</button>
+        </form>
+    </div>
+
+    <div class="kanban-board">
+        <div class="kanban-column todo">
+            <div class="column-header todo-header">
+                <h3>To Do</h3>
+                <span class="count-badge">{{ todoTasks.length }}</span>
+            </div>
+            <div cdkDropList id="todoList" #todoList="cdkDropList" [cdkDropListData]="todoTasks"
+                [cdkDropListConnectedTo]="['inProgressList', 'doneList']" class="task-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="task-card" *ngFor="let task of todoTasks" cdkDrag>
+                    <div class="card-content">
+                        <div class="field-group">
+                            <span class="field-label">Task Name</span>
+                            <div class="task-header">
+                                <h4 class="task-title">{{ task.title }}</h4>
+                                <div class="task-actions">
+                                    <button class="btn-edit" *ngIf="canDelete(task)"
+                                        (click)="editTask(task)">Edit</button>
+                                    <button class="btn-delete" *ngIf="canDelete(task)"
+                                        (click)="deleteTask(task.taskId)">×</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">Description</span>
+                            <p class="task-desc">{{ task.description }}</p>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="task-meta-vertical">
+                            <div class="meta-row">
+                                <span class="meta-label">Priority</span>
+                                <span class="priority-tag" [ngClass]="task.priority">{{ task.priority }}</span>
+                            </div>
+                            <div class="meta-row" *ngIf="task.dueDate">
+                                <span class="meta-label">Due Date</span>
+                                <span class="meta-value">{{ task.dueDate | date:'MMM d, y' }}</span>
+                            </div>
+                            <div class="meta-row" *ngIf="task.assignedTo">
+                                <span class="meta-label">Assigned To</span>
+                                <span class="assignee-badge">{{ task.assignedTo.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kanban-column inprogress">
+            <div class="column-header progress-header">
+                <h3>In Progress</h3>
+                <span class="count-badge">{{ inProgressTasks.length }}</span>
+            </div>
+            <div cdkDropList id="inProgressList" #inProgressList="cdkDropList" [cdkDropListData]="inProgressTasks"
+                [cdkDropListConnectedTo]="['todoList', 'doneList']" class="task-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="task-card" *ngFor="let task of inProgressTasks" cdkDrag>
+                    <div class="card-content">
+                        <div class="field-group">
+                            <span class="field-label">Task Name</span>
+                            <div class="task-header">
+                                <h4 class="task-title">{{ task.title }}</h4>
+                                <div class="task-actions">
+                                    <button class="btn-edit" *ngIf="canDelete(task)"
+                                        (click)="editTask(task)">Edit</button>
+                                    <button class="btn-delete" *ngIf="canDelete(task)"
+                                        (click)="deleteTask(task.taskId)">×</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">Description</span>
+                            <p class="task-desc">{{ task.description }}</p>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="task-meta-vertical">
+                            <div class="meta-row">
+                                <span class="meta-label">Priority</span>
+                                <span class="priority-tag" [ngClass]="task.priority">{{ task.priority }}</span>
+                            </div>
+                            <div class="meta-row" *ngIf="task.dueDate">
+                                <span class="meta-label">Due Date</span>
+                                <span class="meta-value">{{ task.dueDate | date:'MMM d, y' }}</span>
+                            </div>
+                            <div class="meta-row" *ngIf="task.assignedTo">
+                                <span class="meta-label">Assigned To</span>
+                                <span class="assignee-badge">{{ task.assignedTo.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kanban-column done">
+            <div class="column-header done-header">
+                <h3>Done</h3>
+                <span class="count-badge">{{ doneTasks.length }}</span>
+            </div>
+            <div cdkDropList id="doneList" #doneList="cdkDropList" [cdkDropListData]="doneTasks"
+                [cdkDropListConnectedTo]="['todoList', 'inProgressList']" class="task-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="task-card" *ngFor="let task of doneTasks" cdkDrag>
+                    <div class="card-content">
+                        <div class="field-group">
+                            <span class="field-label">Task Name</span>
+                            <div class="task-header">
+                                <h4 class="task-title">{{ task.title }}</h4>
+                                <div class="task-actions">
+                                    <button class="btn-edit" *ngIf="canDelete(task)"
+                                        (click)="editTask(task)">Edit</button>
+                                    <button class="btn-delete" *ngIf="canDelete(task)"
+                                        (click)="deleteTask(task.taskId)">×</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">Description</span>
+                            <p class="task-desc">{{ task.description }}</p>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="task-meta-vertical">
+                            <div class="meta-row">
+                                <span class="meta-label">Priority</span>
+                                <span class="priority-tag" [ngClass]="task.priority">{{ task.priority }}</span>
+                            </div>
+                            <div class="meta-row" *ngIf="task.dueDate">
+                                <span class="meta-label">Due Date</span>
+                                <span class="meta-value">{{ task.dueDate | date:'MMM d, y' }}</span>
+                            </div>
+                            <div class="meta-row" *ngIf="task.assignedTo">
+                                <span class="meta-label">Assigned To</span>
+                                <span class="assignee-badge">{{ task.assignedTo.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="error-state" *ngIf="!loading && !project">
+    <h2>Project not found</h2>
+    <a routerLink="/projects" class="btn-secondary">Back to Projects</a>
+</div>
+
+<div class="modal-overlay" *ngIf="showEditModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Task</h3>
+            <button class="btn-close" (click)="closeEditModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Task Title <span class="required-indicator">*</span></label>
+                <input type="text" [(ngModel)]="editingTask.title" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Description <span class="required-indicator">*</span></label>
+                <textarea [(ngModel)]="editingTask.description" rows="3" class="form-control"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" [(ngModel)]="editingTask.dueDate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select [(ngModel)]="editingTask.priority" class="form-control">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Assign To</label>
+                <select [(ngModel)]="editingTask.assignedTo" [compareWith]="compareUsers" class="form-control">
+                    <option [ngValue]="null">Unassigned</option>
+                    <option *ngFor="let user of users" [ngValue]="user">{{ user.name }} ({{ user.email }})</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeEditModal()">Cancel</button>
+            <button class="btn-primary" (click)="saveTaskChanges()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showEditProjectModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Project</h3>
+            <button class="btn-close" (click)="closeEditProjectModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Project Name <span class="required-indicator">*</span></label>
+                <input type="text" [(ngModel)]="editingProject.name" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Description <span class="required-indicator">*</span></label>
+                <textarea [(ngModel)]="editingProject.description" rows="3" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeEditProjectModal()">Cancel</button>
+            <button class="btn-primary" (click)="saveProjectChanges()">Save Changes</button>
+        </div>
+    </div>
+</div>
