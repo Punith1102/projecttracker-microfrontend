@@ -130,9 +130,10 @@
                                 <span class="meta-label">Due Date</span>
                                 <span class="meta-value">{{ task.dueDate | date:'MMM d, y' }}</span>
                             </div>
-                            <div class="meta-row" *ngIf="task.assignedTo">
+                            <div class="meta-row" *ngIf="task.assignedToUserId || task.assignedTo">
                                 <span class="meta-label">Assigned To</span>
-                                <span class="assignee-badge">{{ task.assignedTo.name }}</span>
+                                <span class="assignee-badge">{{ getUserName(task.assignedToUserId ||
+                                    task.assignedTo?.userId) }}</span>
                             </div>
                         </div>
                     </div>
@@ -178,9 +179,10 @@
                                 <span class="meta-label">Due Date</span>
                                 <span class="meta-value">{{ task.dueDate | date:'MMM d, y' }}</span>
                             </div>
-                            <div class="meta-row" *ngIf="task.assignedTo">
+                            <div class="meta-row" *ngIf="task.assignedToUserId || task.assignedTo">
                                 <span class="meta-label">Assigned To</span>
-                                <span class="assignee-badge">{{ task.assignedTo.name }}</span>
+                                <span class="assignee-badge">{{ getUserName(task.assignedToUserId ||
+                                    task.assignedTo?.userId) }}</span>
                             </div>
                         </div>
                     </div>
@@ -226,9 +228,10 @@
                                 <span class="meta-label">Due Date</span>
                                 <span class="meta-value">{{ task.dueDate | date:'MMM d, y' }}</span>
                             </div>
-                            <div class="meta-row" *ngIf="task.assignedTo">
+                            <div class="meta-row" *ngIf="task.assignedToUserId || task.assignedTo">
                                 <span class="meta-label">Assigned To</span>
-                                <span class="assignee-badge">{{ task.assignedTo.name }}</span>
+                                <span class="assignee-badge">{{ getUserName(task.assignedToUserId ||
+                                    task.assignedTo?.userId) }}</span>
                             </div>
                         </div>
                     </div>

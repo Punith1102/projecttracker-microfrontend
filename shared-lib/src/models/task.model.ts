@@ -10,4 +10,6 @@ export interface Task {
     project?: { projectId: number, name: string };
     priority?: string;
     dueDate?: string;
+    assignedToUserId?: number;
+    createdByUserId?: number;
 }

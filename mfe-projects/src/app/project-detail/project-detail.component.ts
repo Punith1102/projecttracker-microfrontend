@@ -111,11 +111,18 @@ export class ProjectDetailComponent implements OnInit {
         });
     }
 
-    organizeTasks(tasks: Task[]) {
+    organizeTasks(tasks: any[]) {
         if (!tasks) return;
-        this.todoTasks = tasks.filter(t => t.status?.name === 'TO_DO');
-        this.inProgressTasks = tasks.filter(t => t.status?.name === 'IN_PROGRESS');
-        this.doneTasks = tasks.filter(t => t.status?.name === 'DONE');
+
+        // Normalize task ID
+        const normalizedTasks = tasks.map(t => ({
+            ...t,
+            taskId: t.taskId || t.taskID
+        }));
+
+        this.todoTasks = normalizedTasks.filter(t => t.status?.name === 'TO_DO');
+        this.inProgressTasks = normalizedTasks.filter(t => t.status?.name === 'IN_PROGRESS');
+        this.doneTasks = normalizedTasks.filter(t => t.status?.name === 'DONE');
     }
 
     drop(event: CdkDragDrop<Task[]>) {
@@ -175,8 +182,8 @@ export class ProjectDetailComponent implements OnInit {
     }
 
     canDelete(task: Task): boolean {
+        // Only project creator and admin can edit/delete tasks
         return this.isAdmin ||
-            (task.assignedTo?.userId === this.authService.getCurrentUserId()) ||
             (this.project?.createdByUserId === this.authService.getCurrentUserId());
     }
 
@@ -221,18 +228,10 @@ export class ProjectDetailComponent implements OnInit {
         this.taskService.deleteTask(taskId).subscribe({
             next: () => {
                 this.toastService.show('Task deleted successfully', 'success');
-
-                const idStr = String(taskId);
-
-                this.todoTasks = this.todoTasks.filter(t => String(t.taskId) !== idStr);
-                this.inProgressTasks = this.inProgressTasks.filter(t => String(t.taskId) !== idStr);
-                this.doneTasks = this.doneTasks.filter(t => String(t.taskId) !== idStr);
-
-                if (this.project && (this.project as any).tasks) {
-                    (this.project as any).tasks = (this.project as any).tasks.filter((t: Task) => String(t.taskId) !== idStr);
+                // Reload project to ensure UI is in sync
+                if (this.projectId) {
+                    this.loadProjectDetails(this.projectId);
                 }
-
-                this.cdr.detectChanges();
             },
             error: () => { }
         });
@@ -304,5 +303,11 @@ export class ProjectDetailComponent implements OnInit {
         if (!u1 && !u2) return true;
         if (!u1 || !u2) return false;
         return u1.userId === u2.userId;
+    }
+
+    getUserName(userId: number | undefined): string {
+        if (!userId) return 'Unassigned';
+        const user = this.users.find(u => u.userId === userId);
+        return user ? user.name : 'Unknown User';
     }
 }
