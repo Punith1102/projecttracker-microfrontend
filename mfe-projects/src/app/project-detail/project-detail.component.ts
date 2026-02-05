@@ -32,6 +32,7 @@ export class ProjectDetailComponent implements OnInit {
     isAdmin: boolean = false;
 
     currentUserEmail: string = '';
+    currentUserId: number = 0;
 
     users: User[] = [];
 
@@ -65,6 +66,7 @@ export class ProjectDetailComponent implements OnInit {
 
         const user = this.authService.getUser();
         this.currentUserEmail = user ? user.email : '';
+        this.currentUserId = this.authService.getUser()?.userId || 0;
 
         this.loadUsers();
 
@@ -174,8 +176,8 @@ export class ProjectDetailComponent implements OnInit {
 
     canDelete(task: Task): boolean {
         return this.isAdmin ||
-            (task.assignedTo?.email === this.currentUserEmail) ||
-            (this.project?.createdBy?.email === this.currentUserEmail);
+            (task.assignedTo?.userId === this.authService.getCurrentUserId()) ||
+            (this.project?.createdByUserId === this.authService.getCurrentUserId());
     }
 
     editTask(task: Task) {
@@ -236,12 +238,19 @@ export class ProjectDetailComponent implements OnInit {
         });
     }
 
+
     canEditProject(): boolean {
-        return this.isAdmin || (this.project?.createdBy?.email === this.currentUserEmail);
+        if (this.isAdmin) return true;
+        const currentId = this.authService.getCurrentUserId();
+        const creatorId = this.project?.createdByUserId;
+        if (!currentId || !creatorId) {
+            return false;
+        }
+        return currentId === creatorId;
     }
 
     canDeleteProject(): boolean {
-        return this.isAdmin || (this.project?.createdBy?.email === this.currentUserEmail);
+        return this.isAdmin || (this.project?.createdByUserId === this.authService.getCurrentUserId());
     }
 
     deleteProject() {

@@ -74,10 +74,11 @@ export class AuthService {
             tap(response => {
                 localStorage.setItem('token', response.token);
                 localStorage.setItem('user', JSON.stringify(response));
-                
-                
-                
-
+                if (response.userId) {
+                    localStorage.setItem('userId', response.userId.toString());
+                } else {
+                    console.error("CRITICAL: AuthResponse did not contain a userId. Check your Backend!");
+                }
                 this.authChannel.postMessage({
                     type: 'LOGIN',
                     payload: { expiresIn: response.expiresIn }
@@ -110,6 +111,21 @@ export class AuthService {
     getUser(): AuthResponse | null {
         const userStr = localStorage.getItem('user');
         return userStr ? JSON.parse(userStr) : null;
+    }
+
+    getCurrentUserId(): number | null {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            console.warn("DEBUG: Attempted to get userId, but none found in localStorage.");
+            return null;
+        }
+        const parsedId = Number(userId);
+        // Safety check: Ensure we didn't get NaN from a corrupted string
+        if (isNaN(parsedId)) {
+            console.error("DEBUG: Stored userId is not a valid number:", userId);
+            return null;
+        }
+        return parsedId;
     }
 
     isAuthenticated(): boolean {

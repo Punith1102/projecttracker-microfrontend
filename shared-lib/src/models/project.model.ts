@@ -8,5 +8,6 @@ export interface Project {
     dueDate: string;
     assignedTo?: User;
     createdBy: User;
+    createdByUserId: number;
     tasks?: any[];
 }
