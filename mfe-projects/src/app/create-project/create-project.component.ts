@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ProjectService } from '../../../../shared-lib/src/services/project.service';
 import { UserService } from '../../../../shared-lib/src/services/user.service';
 import { AuthService } from '../../../../shared-lib/src/services/auth.service';
+import { ToastService } from '../../../../shared-lib/src/services/toast.service';
 import { User } from '../../../../shared-lib/src/models/auth.models';
 
 @Component({
@@ -24,6 +25,7 @@ export class CreateProjectComponent implements OnInit {
         private projectService: ProjectService,
         private userService: UserService,
         private authService: AuthService,
+        private toastService: ToastService,
         private fb: FormBuilder,
         private router: Router
     ) {
@@ -50,15 +52,20 @@ export class CreateProjectComponent implements OnInit {
 
     onSubmit() {
         if (this.createProjectForm.valid) {
+            this.isLoading = true;
             this.projectService.createProject(this.createProjectForm.value).subscribe({
                 next: () => {
+                    this.isLoading = false;
+                    this.toastService.show('Project created successfully!', 'success');
                     this.router.navigate(['/dashboard']);
                 },
                 error: (err) => {
+                    this.isLoading = false;
                     console.error('Create Project Failed:', err);
-                    alert('Failed to create project. Check console for details. (Likely 401 Unauthorized if running in isolation)');
+                    this.toastService.show('Failed to create project', 'error');
                 }
             });
         }
     }
 }
+

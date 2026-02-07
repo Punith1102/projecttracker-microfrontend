@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { ToastService, Toast } from '../../services/toast.service';
 
 @Component({
-    selector: 'app-toast',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-toast',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="toast-container">
       <div *ngFor="let toast of toastService.toasts | async" 
            class="toast" 
@@ -17,7 +17,7 @@ import { ToastService, Toast } from '../../services/toast.service';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .toast-container {
       position: fixed;
       top: 20px;
@@ -70,5 +70,5 @@ import { ToastService, Toast } from '../../services/toast.service';
   `]
 })
 export class ToastComponent {
-    constructor(public toastService: ToastService) { }
+  constructor(public toastService: ToastService) { }
 }
